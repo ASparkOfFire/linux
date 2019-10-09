@@ -240,13 +240,14 @@ static void do_idle(void)
 		check_pgt_cache();
 		rmb();
 
+		local_irq_disable();
+
 		if (cpu_is_offline(cpu)) {
-			tick_nohz_idle_stop_tick_protected();
+			tick_nohz_idle_stop_tick();
 			cpuhp_report_idle_dead();
 			arch_cpu_idle_dead();
 		}
 
-		local_irq_disable();
 		arch_cpu_idle_enter();
 
 		/*
@@ -368,7 +369,6 @@ void cpu_startup_entry(enum cpuhp_state state)
 		do_idle();
 }
 
-#ifndef CONFIG_SCHED_PDS
 /*
  * idle-task scheduling class.
  */
@@ -481,4 +481,3 @@ const struct sched_class idle_sched_class = {
 	.switched_to		= switched_to_idle,
 	.update_curr		= update_curr_idle,
 };
-#endif
